@@ -4,6 +4,7 @@ import PopulationGrid from './components/populationGrid';
 import Instructions from 'components/instructions';
 import Settings from 'components/settings';
 import { DEFAULT_CONFIG } from 'Constants';
+import ClipText from 'components/clipText';
 
 
 /*Functions to save and load settings from browser local storage */
@@ -60,6 +61,7 @@ function IECApp() {
         </header>
         <div className='content'>
           <PopulationGrid ref={popGrid} settings={settings}/>
+          <ClipText />
         </div>
           <Instructions />
         <Settings loadedSettings={settings} setSettingsCallback={setSettings} popGrid={popGrid}/>

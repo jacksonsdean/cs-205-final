@@ -2,9 +2,16 @@ numpy
 networkx
 matplotlib
 scikit-image
+opencv-python
+ftfy
+regex
 tqdm
 xenon # CI tests for code complexity
 pylint # code quality
 Flask # for local testing
 flask_cors
 requests
+torch --index-url https://download.pytorch.org/whl/cu118
+torchvision --index-url https://download.pytorch.org/whl/cu118
+torchaudio --index-url https://download.pytorch.org/whl/cu118
+git+https://github.com/openai/CLIP.git

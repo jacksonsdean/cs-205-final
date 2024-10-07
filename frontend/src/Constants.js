@@ -4,8 +4,8 @@ export const DEFAULT_CONFIG = {
     "color_mode": "RGB",
     "res_w": 128,
     "res_h": 128,
-    "population_size": 9,
-    "activations": ["identity", "gauss", "sin", "cos", "sawtooth", "tanh", "sigmoid"],
+    "population_size": 20,
+    "activations": ["IdentityActivation", "GaussActivation", "SinActivation", "CosActivation", "TanhActivation", "SigmoidActivation"],
     "output_activation": "",
     "use_radial_distance": true,
     "prob_mutate_weight": 0.35,
@@ -15,6 +15,10 @@ export const DEFAULT_CONFIG = {
     "prob_add_node": 0.4,
     "prob_remove_node": 0.4,
     "prob_crossover": .25,
+    "version":  [2, 0, 0],
+    "fourier_seed": 0,
+    "sgd_learning_rate": 1.0,
+    "sgd_steps": 10,
 }
 
 export const RESET_OPERATION = "reset"
@@ -22,7 +26,7 @@ export const NEXT_GEN_OPERATION = "next_gen"
 export const SAVE_IMAGES_OPERATION = "save_images"
 
 export const POST_FORMAT = {
-    "operation": RESET_OPERATION, "config": DEFAULT_CONFIG
+    "operation": RESET_OPERATION, "config": DEFAULT_CONFIG, "population": [], "clip_text": ""
 }
 
 export const MAX_HISTORY = 20

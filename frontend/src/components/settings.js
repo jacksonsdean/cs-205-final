@@ -74,6 +74,22 @@ function ProbabilitySlider(props) {
 }
 
 
+function IntField(props) {
+    return <td><input type="number" step="1" value={props.value} onChange={(event) => props.onAfterChange(parseInt(event.target.value))} /></td>
+}
+function FloatField(props) {
+    return (<td>
+            <input
+                type='number'
+                step="0.1"
+                min='0'
+                className='form-control'
+                value={props.value}
+                onChange={(event) => props.onAfterChange(parseFloat(event.target.value))}
+            />
+        </td>)
+}
+
 function Settings(props) {
     /*The settings component that allows the user to change settings*/
     const settings = props.loadedSettings;
@@ -101,6 +117,20 @@ function Settings(props) {
                                     onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "prob_crossover", value, popGrid)) }}
                                 />
                             </MenuItem>
+                            <MenuItem># CLIP SGD Steps
+                                <IntField
+                                    value={settings.sgd_steps}
+                                    onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "sgd_steps", value, popGrid)) }}
+                                />
+                            </MenuItem>
+
+                            <MenuItem># CLIP SGD LR
+                                <FloatField
+                                    value={settings.sgd_learning_rate}
+                                    onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "sgd_learning_rate", value, popGrid)) }}
+                                />
+                            </MenuItem>
+
                             <Note>{"*requires restart"}</Note>
 
                         </SubMenu>

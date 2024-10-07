@@ -5,6 +5,7 @@ import { MAX_HISTORY } from '../Constants';
 import { initialPopulation, nextGeneration, getImageUrl, saveIndividuals } from '../util';
 import Grid from './Grid';
 import styles from "./PopulationGrid.module.css";
+import Plot from 'react-plotly.js';
 
 class FailedToast extends React.Component {
     render() {
@@ -116,7 +117,7 @@ class PopulationGrid extends Grid {
 
     constructor(props) {
         super(props);
-        this.state = { population: [], loading: true };
+        this.state = { population: [], loading: true, record: [] };
         this.history = [];
         this.config = props.settings;
 
@@ -163,6 +164,9 @@ class PopulationGrid extends Grid {
         }
         const current_pop = this.state.population;
         const next_pop = data["population"];
+        const record = data["record"];
+        console.log("Record: " + record);
+
         if (next_pop === 'undefined' || next_pop.length === 0) {
             console.error("No next_population returned")
             return
@@ -179,7 +183,7 @@ class PopulationGrid extends Grid {
 
 
         this.config.seed += 1; // increment seed
-        this.setState({ population: next_pop, loading: false });
+        this.setState({ population: next_pop, loading: false, record: record });
     }
 
     /* Handles the next generation button */
@@ -190,13 +194,13 @@ class PopulationGrid extends Grid {
         }
 
         this.setState({ loading: true });
-        nextGeneration(this.state.population, this.config, this.failedToast).then((data) => {
+        nextGeneration(this.state.population, this.config, document.getElementById("clip-text").value, this.failedToast).then((data) => {
             this.handleNewData(data)
         }).catch((err) => {
             console.log(err)
 
             this.history.pop() // remove last population from history
-            this.setState({ population: this.state.population, loading: false });
+            this.setState({ population: this.state.population, loading: false, record: this.state.record });
         })
     }
 
@@ -271,8 +275,28 @@ class PopulationGrid extends Grid {
                         <SaveImagesButton loading={this.state.loading} onClick={this.saveImagesClicked} />
                         <ResetButton loading={this.state.loading} onClick={this.reset} />
                     </Grid>
+
+                
+
                 </>}
+                
             </div>
+                {this.state.record ? <Plot
+                    data={[
+
+                    {
+                        x: Array.from(Array(this.state.record ? this.state.record.length : 0).keys()),
+                        y: this.state.record || [],
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        marker: {color: 'red'},
+                    },
+
+                    ]}
+                    layout={ {width: 320, height: 240, title: 'CLIP Loss', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: {color: 'white'}} }
+                    style={{ position:'absolute',left:0,bottom:0,right:0, maxWidth: "20vw"}}
+                /> : <></>
+                }
             <ToastContainer />
         </>
         );

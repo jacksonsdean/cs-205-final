@@ -27,7 +27,7 @@ function receivePostReponse(response) {
 
 /* gets a new population from the server, given the current population
  and the configuration */
-export function nextGeneration(currentPopulation, config, failedToast) {
+export function nextGeneration(currentPopulation, config, clipText, failedToast) {
 
     // ensure that at least one individual is selected
     let at_least_one_selected = false;
@@ -57,6 +57,7 @@ export function nextGeneration(currentPopulation, config, failedToast) {
     postData.operation = NEXT_GEN_OPERATION
     postData.population = population
     postData.config = config
+    postData.clip_text = clipText
 
     // send request
     return new Promise((resolve, reject) => {
@@ -99,6 +100,7 @@ export function saveIndividuals(currentPopulation, config) {
     postData.operation = SAVE_IMAGES_OPERATION
     postData.population = population
     postData.config = config
+    postData.clip_text = ""
 
     // send request
     return new Promise((resolve, reject) => {
@@ -118,6 +120,7 @@ export function initialPopulation(config) {
     let postData = POST_FORMAT
     postData.operation = RESET_OPERATION
     postData.config = config
+    postData.clip_text = ""
 
     // send request
     return new Promise((resolve, reject) => {
@@ -138,12 +141,12 @@ export function initialPopulation(config) {
 
 export function getImageUrl(individual) {
     // create image from individual
-    let parsed = JSON.parse(individual.image)
+    let parsed = individual.image
     if(parsed === null) {
         console.log(individual.image)
         parsed = individual.image
     }
     // create url from base64 string
-    const url = "data:image/png;base64," + parsed.join("")
+    const url = "data:image/jpg;base64," + parsed
     return url
 }
