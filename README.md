@@ -5,7 +5,10 @@
     <h2>Instructions to run locally</h2>
     <h3>With Docker</h3>
     `docker-compose up` in the project directory
-    <br/>Navigate to <a href="http://localhost:3000">localhost:3000</a>
+    <br/><br/>
+    or with newer versions of Docker: `docker compose up -d`
+    <br/><br/>
+    <br/>Then navigate to <a href="http://localhost:3000">localhost:3000</a>
     <h3>Without Docker</h3> Run the frontend from the "frontend" directory with <br/>`npm i`<br/>`npm run start-local`
     <br/>
     and the backend from the "backend" directory with <br/>`python -m pip install -r requirements.txt` <br/>`python local_server.py`
