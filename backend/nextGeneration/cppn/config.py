@@ -71,7 +71,7 @@ class CPPNConfig:
         self.prob_mutate_response = 0.0
         
         self.bias_mutation_std = 0.0
-        self.weight_mutation_std = 0.0
+        self.weight_mutation_std = 1.0
         
         self.connection_prune_threshold = 0.0
         
@@ -110,7 +110,7 @@ class CPPNConfig:
         self.no_param_mutations = False
         self.sgd_clamp_grad = False
         self.sgd_every = 1
-        self.sgd_early_stop = 0
+        self.sgd_early_stop = 5
         self.mutate_sgd_lr_sigma = self.sgd_learning_rate * 0.01
         self.max_weight = 10.0
         
@@ -118,8 +118,8 @@ class CPPNConfig:
         
         # Fourier features:
         self.use_fourier_features = True
-        self.n_fourier_features = 0
-        self.fourier_feature_scale = 2.0
+        self.n_fourier_features = 0 # TODO add to settings, but TODO is bugged (seed changes every gen)
+        self.fourier_feature_scale = 1.0
         self.fourier_mult_percent = 0.05
         self.fourier_sin_and_cos = True
 

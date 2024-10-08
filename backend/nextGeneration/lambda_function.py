@@ -112,7 +112,8 @@ def next_generation(config, population_data, clip_text=""):
     
     # evaluate population
     json_data = evaluate_population(population, config)
-    json_data['record'] = record.tolist()
+    if len(record) > 0:
+        json_data['record'] = record.tolist()
     return json_data
 
 
