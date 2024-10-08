@@ -52,6 +52,7 @@ function newSetting(settings, setting, value, popGrid, requiresRestart = false) 
     let newSetting = { ...settings };
     newSetting[setting] = value;
     popGrid.current.setSettings(newSetting)
+    console.log(setting, value)
     if (requiresRestart) {
         popGrid.current.reset()
     }
@@ -86,6 +87,16 @@ function FloatField(props) {
                 className='form-control'
                 value={props.value}
                 onChange={(event) => props.onAfterChange(parseFloat(event.target.value))}
+            />
+        </td>)
+}
+function IntListField(props) {
+    return (<td>
+            <input
+                className='form-control'
+                value={props.value}
+                pattern="(\d+,)*\d+"
+                onChange={(event) => props.onAfterChange(event.target.value.split(",").map((x) => Number.isInteger(parseInt(x))?parseInt(x):0))}
             />
         </td>)
 }
@@ -128,6 +139,28 @@ function Settings(props) {
                                 <FloatField
                                     value={settings.sgd_learning_rate}
                                     onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "sgd_learning_rate", value, popGrid)) }}
+                                />
+                            </MenuItem>
+                            <MenuItem>
+                            {"Hidden nodes at start *"}
+                            <table><tbody>
+                               <tr>
+                                
+                                 <IntListField
+                                    value={Number.isInteger(settings.hidden_nodes_at_start)?settings.hidden_nodes_at_start:settings.hidden_nodes_at_start.filter(x=>Number.isInteger(x)).join(",")}
+                                    onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "hidden_nodes_at_start", value, popGrid)) }}
+                                    />
+                                <button onClick={() => {popGrid.current.reset()}}>↩</button>
+                                </tr>
+                                </tbody>
+                                    </table>
+                            </MenuItem>
+
+                            <MenuItem>Image scale
+                                <FloatField
+                                    step={0.1}
+                                    value={settings.coord_range}
+                                    onAfterChange={(value) => { props.setSettingsCallback(newSetting(settings, "coord_range", value, popGrid)) }}
                                 />
                             </MenuItem>
 

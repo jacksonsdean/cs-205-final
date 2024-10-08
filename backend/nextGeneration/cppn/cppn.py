@@ -188,6 +188,8 @@ class CPPN(nn.Module):
             n_hidden = config.hidden_nodes_at_start
             if isinstance(n_hidden, int):
                 n_hidden = (n_hidden,)
+            else:
+                n_hidden = tuple([int(n_hidden) for n_hidden in n_hidden])
             
             for node_id in self.input_node_ids:
                 node = Node(af.IdentityActivation, node_id)

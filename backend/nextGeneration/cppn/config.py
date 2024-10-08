@@ -31,6 +31,9 @@ class CPPNConfig:
         self.res_h = 128
         self.color_mode = "RGB" # HSL, RGB, or L
         
+        self.save_h=1024
+        self.save_w=1024
+        
         self.init_connection_probability = 0.5
         self.init_connection_probability_fourier = 0.1
         self.fourier_seed = 'random'

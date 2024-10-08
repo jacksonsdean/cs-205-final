@@ -18,7 +18,9 @@ export const DEFAULT_CONFIG = {
     "version":  [2, 0, 0],
     "fourier_seed": 0,
     "sgd_learning_rate": 1.0,
-    "sgd_steps": 10,
+    "sgd_steps": 1,
+    "hidden_nodes_at_start": [2],
+    "coord_range": 1.0,
 }
 
 export const RESET_OPERATION = "reset"

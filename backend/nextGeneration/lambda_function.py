@@ -33,9 +33,12 @@ def evaluate_population(population, config)->str:
         individual.get_image(static_inputs, to_cpu=True, channel_first=False)
         # convert from numpy to bytes
         individual.image = (individual.image*255).numpy().astype(np.uint8)
-        if config.color_mode == "L":
+        if config.color_mode == "HSL":
+            # convert to RGB
+            individual.image = Image.fromarray(individual.image, mode='HSV')
+        elif config.color_mode == "L":
             individual.image = Image.fromarray(individual.image.squeeze(), mode='L')
-        else:
+        else: # RGB
             individual.image = Image.fromarray(individual.image)
         # convert to RGB if not RGB
         if individual.image.mode != 'RGB':
@@ -127,15 +130,20 @@ def save_images(config, population_data):
     for individual in population_data:
         population.append(CPPN.create_from_json(individual, config))
 
+    curr_res = (config.res_w, config.res_h)
     for individual in population:
-        if individual.selected:
+        # if individual.selected:
             # apply save resolution before evaluating
-            individual.config.res_h = config.save_h
-            individual.config.res_w = config.save_w
+            # individual.config.res_h = config.save_h
+            # individual.config.res_w = config.save_w
 
         individual.selected = not individual.selected # invert selection
+    config.res_h = config.save_h
+    config.res_w = config.save_w
 
     json_data = evaluate_population(population, config)
+    config.res_h, config.res_w = curr_res
+    
     return json_data
 
 def lambda_handler(event, context):

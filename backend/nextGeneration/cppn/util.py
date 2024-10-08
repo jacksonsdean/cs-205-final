@@ -208,6 +208,11 @@ def get_n_params(model):
 
 def initialize_inputs(res_h, res_w, use_radial_dist, use_bias, n_inputs, device, coord_range=(-.5,.5), dtype=torch.float32):
         """Initializes the pixel inputs."""
+        
+        if not isinstance(coord_range, tuple):
+            # assume it's a single range for both x and y min and max
+            coord_range = (-coord_range, coord_range)
+        
         if not isinstance(coord_range[0], tuple):
             # assume it's a single range for both x and y
             coord_range_x = coord_range

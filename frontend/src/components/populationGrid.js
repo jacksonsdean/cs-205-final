@@ -131,6 +131,9 @@ class PopulationGrid extends Grid {
         this.previousGenerationClicked = this.previousGenerationClicked.bind(this);
         this.saveImagesClicked = this.saveImagesClicked.bind(this);
         this.reset = this.reset.bind(this);
+
+        // bind plot callback from props
+        this.plotCallback = props.plotCallback;
     }
 
     setSettings(settings) {
@@ -181,7 +184,7 @@ class PopulationGrid extends Grid {
             next_pop[i].selected = false;
         }
 
-
+        this.plotCallback(record);
         this.config.seed += 1; // increment seed
         this.setState({ population: next_pop, loading: false, record: record });
     }
@@ -236,7 +239,17 @@ class PopulationGrid extends Grid {
                 link.href = url;
                 link.download = "saved_genome_" + i.toString() + ".png";
                 link.click();
+                
+                const genome = individual
+                individual['config'] = this.config
+                const genome_data = JSON.stringify(genome);
+                const blob = new Blob([genome_data], { type: 'text/plain' });
+                const genome_link = document.createElement("a");
+                genome_link.href = URL.createObjectURL(blob);
+                genome_link.download = "saved_genome_" + i.toString() + ".json";
+                genome_link.click();
             }
+            
             this.setState({ loading: false });
 
         }).catch((err) => {
@@ -281,22 +294,7 @@ class PopulationGrid extends Grid {
                 </>}
                 
             </div>
-                {this.state.record ? <Plot
-                    data={[
-
-                    {
-                        x: Array.from(Array(this.state.record ? this.state.record.length : 0).keys()),
-                        y: this.state.record || [],
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        marker: {color: 'red'},
-                    },
-
-                    ]}
-                    layout={ {width: 320, height: 240, title: 'CLIP Loss', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: {color: 'white'}} }
-                    style={{ position:'absolute',left:0,bottom:0,right:0, maxWidth: "20vw"}}
-                /> : <></>
-                }
+                
             <ToastContainer />
         </>
         );

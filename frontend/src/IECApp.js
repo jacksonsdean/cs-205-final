@@ -5,7 +5,7 @@ import Instructions from 'components/instructions';
 import Settings from 'components/settings';
 import { DEFAULT_CONFIG } from 'Constants';
 import ClipText from 'components/clipText';
-
+import LossPlot from 'components/plot';
 
 /*Functions to save and load settings from browser local storage */
 function saveSettings(settings) {
@@ -50,6 +50,9 @@ function IECApp() {
     saveSettings(newSettings);
   }
 
+    let [loss, setLoss] = useState([]);
+
+
   return (
     <div className="IECApp">
       <div className="IECApp-background">
@@ -60,9 +63,10 @@ function IECApp() {
 
         </header>
         <div className='content'>
-          <PopulationGrid ref={popGrid} settings={settings}/>
+          <PopulationGrid ref={popGrid} settings={settings} plotCallback={setLoss}/>
           <ClipText />
         </div>
+        <LossPlot record={loss}/>
           <Instructions />
         <Settings loadedSettings={settings} setSettingsCallback={setSettings} popGrid={popGrid}/>
       </div>
