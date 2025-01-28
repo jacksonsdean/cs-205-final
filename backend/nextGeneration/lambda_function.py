@@ -181,7 +181,7 @@ def lambda_handler(event, context):
         print("ERROR while handling lambda:", type(exception), exception)
         status = 500
         body = json.dumps(f"error in lambda: {type(exception)}: {exception}")
-        logging.exception(exception) # okay to disable broad-except
+        logging.exception(exception) 
 
     return {
             'statusCode': status,
