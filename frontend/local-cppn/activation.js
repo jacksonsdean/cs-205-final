@@ -53,12 +53,15 @@ function sigmoid(x) {
   // Export the activation functions for use in other modules
 // activation.js
 
+
+// using tensorflow.js
 export const ACTIVATION_FUNCTIONS = {
-    sigmoid: (x) => 1 / (1 + Math.exp(-x)),
-    tanh: (x) => Math.tanh(x),
-    relu: (x) => Math.max(0, x),
-    gaussian: (x) => Math.exp(-x * x),
-    sine: (x) => Math.sin(x),
+    sigmoid: (x) => tf.sigmoid(x),
+    tanh: (x) => tf.tanh(x),
+    relu: (x) => tf.relu(x),
+    round: (x) => tf.round(x),
+    gaussian: (x) => tf.exp(tf.neg(tf.square(x))),
+    sine: (x) => tf.sin(x),
     linear: (x) => x,
   };
   

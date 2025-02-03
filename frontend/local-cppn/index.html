@@ -1,142 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+    </script> -->
   <title>CPPN Demo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    canvas {
-      border: 1px solid #ccc;
-    }
-    .container {
-      display: flex;
-      gap: 20px;
-    }
-    .controls {
-      max-width: 300px;
-    }
-    .output {
-      font-weight: bold;
-      color: #333;
-    }
-  </style>
+
+
 </head>
 <body>
+
   <h1>CPPN Interactive Demo</h1>
   <div class="container">
     <div class="controls">
-      <h2>Input Values</h2>
+      <h2>Input Scales</h2>
       <label for="inputX">X:</label>
-      <input type="number" id="inputX" step="0.01" value="0.5">
+      <input type="number" id="inputX" step="1" value="10">
       <br>
       <label for="inputY">Y:</label>
-      <input type="number" id="inputY" step="0.01" value="-0.2">
+      <input type="number" id="inputY" step="1" value="10">
       <br><br>
-      <button id="evaluateBtn">Evaluate CPPN</button>
+      <label for="gridResolution">Grid Resolution (N):</label>
+      <input type="range" id="gridResolution" min="1" max="1024" step="16" value="256">
+      <span id="gridResolutionValue">256</span>
+      <br><br>
+      <button id="newBtn">New CPPN</button>
       <p class="output">Output: <span id="outputDisplay">---</span></p>
     </div>
     <canvas id="cppnCanvas" width="600" height="400"></canvas>
+    <canvas id="imageCanvas" width="1024" height="1024"></canvas>
+    <!-- <img id="imageCanvas" src="" alt="CPPN Image" width="1024" height="1024"> -->
+    <label for="targetPrompt">Target Prompt:</label>
+<input type="text" id="targetPrompt" value="A vibrant fractal pattern">
+<br>
+<button id="compareBtn">Compare Image</button>
+<p id="similarityScore">Similarity: ---</p>
+
   </div>
 
+
   <script type="module">
-    import { initializeCPPN } from './cppn.js';
-    import { evaluateCPPN } from './evaluateCPPN.js';
-    import { ACTIVATION_FUNCTIONS } from './activation.js';
+    tf.setBackend('webgl');
+    console.log(tf.getBackend());
+    
 
-    // Initialize CPPN
-    const numInputNodes = 2; // x and y
-    const numOutputNodes = 1; // single output
-    const cppn = initializeCPPN(numInputNodes, numOutputNodes, ACTIVATION_FUNCTIONS);
+    import { renderCPPNImage, setupGridRenderer, generateGrid, initializeCanvasControls } from './renderer.js';
+    import { initializeCPPN, evaluate } from './cppn.js';
+    //import {loadCLIP, evaluateImageSimilarity} from './clip.js';
 
-    // DOM Elements
-    const inputX = document.getElementById('inputX');
-    const inputY = document.getElementById('inputY');
-    const evaluateBtn = document.getElementById('evaluateBtn');
-    const outputDisplay = document.getElementById('outputDisplay');
-    const canvas = document.getElementById('cppnCanvas');
-    const ctx = canvas.getContext('2d');
+    const gridResolutionValue = document.getElementById('gridResolutionValue');
+    const gridResolutionInput = document.getElementById('gridResolution');
+    const newBtn = document.getElementById('newBtn');
 
-    // Draw CPPN on canvas
-    function drawCPPN(cppn) {
-      const { nodes, connections } = cppn;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //loadCLIP();
+    
+    function update(){
+        // Initialize the CPPN
+        const cppn = initializeCPPN(3, [3, 2], 3);
 
-      // Map nodes to canvas positions
-      const nodePositions = {};
-      const padding = 50;
-      const layerSpacing = (canvas.width - 2 * padding) / 3;
-      const nodeSpacing = (canvas.height - 2 * padding) / Math.max(nodes.length, 6);
+        // Initialize canvas interactions
+        initializeCanvasControls();
+        
+        // Set up image renderer with the initialized CPPN
+        setupGridRenderer(gridResolutionInput, gridResolutionValue, newBtn, cppn);
+        
+        
+        const res = parseInt(gridResolutionValue.textContent);
+        // Render the initial image
+        renderCPPNImage(cppn, res);
+        
+        
+        // Evaluate the CPPN on the initial input
+        // Read input range values
+        const inputX = parseFloat(document.getElementById('inputX').value);
+        const inputY = parseFloat(document.getElementById('inputY').value);
+    
+        // Generate grid tensors
+        const { X, Y, R } = generateGrid(inputX, inputY, res);
+    
+        // Create input tensors for the CPPN (stacked inputs)
+        const inputTensors = [X.flatten(), Y.flatten(), R.flatten()];
+    
+        // Evaluate the CPPN to get outputs
+        const outputs = evaluate(cppn, inputTensors);
 
-      // Separate nodes by layer
-      const layers = {
-        input: [],
-        hidden: [],
-        output: [],
-      };
-      nodes.forEach(node => {
-        if (node.id.startsWith('input')) layers.input.push(node);
-        else if (node.id.startsWith('output')) layers.output.push(node);
-        else layers.hidden.push(node);
-      });
-
-      // Draw nodes
-      Object.keys(layers).forEach((layerName, layerIndex) => {
-        const layerNodes = layers[layerName];
-        const x = padding + layerIndex * layerSpacing;
-        layerNodes.forEach((node, i) => {
-          const y = padding + i * nodeSpacing;
-          nodePositions[node.id] = { x, y };
-
-          // Draw node
-          ctx.beginPath();
-          ctx.arc(x, y, 10, 0, 2 * Math.PI);
-          ctx.fillStyle = layerName === 'output' ? 'red' : layerName === 'input' ? 'blue' : 'gray';
-          ctx.fill();
-          ctx.stroke();
-          ctx.closePath();
-
-          // Draw node label
-          ctx.fillStyle = 'black';
-          ctx.font = '10px Arial';
-          ctx.fillText(node.id, x - 10, y - 15);
-        });
-      });
-
-      // Draw connections
-      connections.forEach(connection => {
-        const { fromNode, toNode, weight } = connection;
-        const fromPos = nodePositions[fromNode.id];
-        const toPos = nodePositions[toNode.id];
-        if (!fromPos || !toPos) return;
-
-        ctx.beginPath();
-        ctx.moveTo(fromPos.x, fromPos.y);
-        ctx.lineTo(toPos.x, toPos.y);
-        ctx.strokeStyle = weight > 0 ? 'green' : 'red';
-        ctx.lineWidth = Math.abs(weight) * 2;
-        ctx.stroke();
-        ctx.closePath();
-      });
+        
+        outputDisplay.textContent = outputs;
+        
     }
+    update();
 
-    // Evaluate button listener
-    evaluateBtn.addEventListener('click', () => {
-      const inputValues = [parseFloat(inputX.value), parseFloat(inputY.value)];
-      const outputValues = evaluateCPPN(cppn, inputValues);
+    newBtn.addEventListener('click', update);
 
-      // Update output display
-      outputDisplay.textContent = outputValues.map(v => v.toFixed(4)).join(', ');
+    document.getElementById("compareBtn").addEventListener("click", evaluateImageSimilarity);
 
-      // Redraw CPPN (optional, if updated dynamically)
-      drawCPPN(cppn);
-    });
-
-    // Initial draw
-    drawCPPN(cppn);
+    
   </script>
+  
 </body>
 </html>
