@@ -4,8 +4,9 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script type="module">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2'></script>
+    <!-- <script type="module">
         import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
     </script> -->
   <title>CPPN Demo</title>
@@ -50,14 +51,20 @@
 
     import { renderCPPNImage, setupGridRenderer, generateGrid, initializeCanvasControls } from './renderer.js';
     import { initializeCPPN, evaluate } from './cppn.js';
-    //import {loadCLIP, evaluateImageSimilarity} from './clip.js';
+    // import {loadCLIPModels, evaluateImageSimilarity} from './clip.js';
 
     const gridResolutionValue = document.getElementById('gridResolutionValue');
     const gridResolutionInput = document.getElementById('gridResolution');
     const newBtn = document.getElementById('newBtn');
 
-    //loadCLIP();
+    import { computeSimilarities } from './clip.js';
+
+      
     
+    
+const prompt = "A futuristic cityscape with neon lights";
+
+
     function update(){
         // Initialize the CPPN
         const cppn = initializeCPPN(3, [3, 2], 3);
@@ -94,10 +101,27 @@
     }
     update();
 
+    // get pixel data from canvas
+    const canvas = document.getElementById('imageCanvas');
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    console.log(imageData);
+    // to tensor
+    //const imageTensor = tf.browser.fromPixels(imageData);
+
+    function updateSim(){
+        (async () => {
+            const similarities = await computeSimilarities(prompt, [imageData]);
+            console.log(similarities);
+            document.getElementById('similarityScore').textContent = `Similarity: ${similarities[0]}`;
+        })();
+    }
+
+    updateSim();
+
     newBtn.addEventListener('click', update);
 
-    document.getElementById("compareBtn").addEventListener("click", evaluateImageSimilarity);
-
+   document.getElementById("compareBtn").addEventListener("click", updateSim);
     
   </script>
   
